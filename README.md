@@ -321,7 +321,8 @@ Lengkapi kode program untuk menu lainnya yang ada pada Controller Page, sehingga
 
 ![contact](https://user-images.githubusercontent.com/56244029/122481570-1c16e180-cff9-11eb-9357-82fbf20e9162.png)
 
-![20](https://user-images.githubusercontent.com/56244029/122481660-49fc2600-cff9-11eb-9863-9c1ecac9032a.png)
+![21](https://user-images.githubusercontent.com/56244029/122481779-86c81d00-cff9-11eb-8e50-45b01d8406a1.png)
+
 
 
 
