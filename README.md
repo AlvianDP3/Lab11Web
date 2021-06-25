@@ -508,3 +508,14 @@ n_footer'); ?>
 ```
 
 ![17](https://user-images.githubusercontent.com/56244029/123348247-6fea7300-d583-11eb-8d17-9ec20b92f0c2.png)
+
+# Menghapus Data
+Tambahkan fungsi/method baru pada Controller Artikel dengan nama delete().
+```
+public function delete($id)
+{
+$artikel = new ArtikelModel();
+$artikel->delete($id);
+return redirect('admin/artikel');
+}
+```
