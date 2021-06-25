@@ -323,7 +323,188 @@ Lengkapi kode program untuk menu lainnya yang ada pada Controller Page, sehingga
 
 ![21](https://user-images.githubusercontent.com/56244029/122481779-86c81d00-cff9-11eb-8e50-45b01d8406a1.png)
 
+# Praktikum 12: Framework Lanjutan (CRUD)
 
+# Buat Database
+```
+CREATE DATABASE lab_ci4;
+```
+# Buat Tabel
+```
+CREATE TABLE artikel (
+ id INT(11) auto_increment,
+ judul VARCHAR(200) NOT NULL,
+ isi TEXT,
+ gambar VARCHAR(200),
+ status TINYINT(1) DEFAULT 0,
+ slug VARCHAR(200),
+ PRIMARY KEY(id)
+);
+```
+# Konfigurasi koneksi database
+Selanjutnya membuat konfigurasi untuk menghubungkan dengan database server.
+Konfigurasi dapat dilakukan dengan du acara, yaitu pada file app/config/database.php
+atau menggunakan file .env. Pada praktikum ini kita gunakan konfigurasi pada file .env.
 
+![1](https://user-images.githubusercontent.com/56244029/123343463-061a9b00-d57c-11eb-9c01-72762f9801a0.png)
 
+# Membuat Model
+Selanjutnya adalah membuat Model untuk memproses data Artikel. Buat file baru pada
+direktori app/Models dengan nama ArtikelModel.php
 
+![2](https://user-images.githubusercontent.com/56244029/123343755-99ec6700-d57c-11eb-981d-b97c57538da3.png)
+
+# Membuat Controller
+Buat Controller baru dengan nama Artikel.php pada direktori app/Controllers.
+
+![3](https://user-images.githubusercontent.com/56244029/123344380-ef754380-d57d-11eb-93ca-9bd5e2b65b6b.png)
+
+# Membuat View
+Buat direktori baru dengan nama artikel pada direktori app/views, kemudian buat file
+baru dengan nama index.php.
+
+![4](https://user-images.githubusercontent.com/56244029/123344527-3bc08380-d57e-11eb-8bab-2ce331288a34.png)
+
+Selanjutnya buka browser kembali, dengan mengakses url http://localhost:8080/artikel
+
+![5](https://user-images.githubusercontent.com/56244029/123344612-6d394f00-d57e-11eb-8cbf-b81d7f0c55f1.png)
+
+Belum ada data yang diampilkan. Kemudian coba tambahkan beberapa data pada database agar dapat ditampilkan datanya.
+
+![9](https://user-images.githubusercontent.com/56244029/123345387-22b8d200-d580-11eb-961e-e41ab4a1b83e.png)
+
+Refresh kembali browser, sehingga akan ditampilkan hasilnya.
+
+![6](https://user-images.githubusercontent.com/56244029/123344920-16804500-d57f-11eb-9f1d-4532b1f2a121.png)
+
+# Membuat Tampilan Detail Artikel
+Tampilan pada saat judul berita di klik maka akan diarahkan ke halaman yang berbeda.
+Tambahkan fungsi baru pada Controller Artikel dengan nama view().
+
+![7](https://user-images.githubusercontent.com/56244029/123345193-bf2ea480-d57f-11eb-909c-4b06197595b8.png)
+
+# Membuat View Detail
+Buat view baru untuk halaman detail dengan nama app/views/artikel/detail.php.
+
+![8](https://user-images.githubusercontent.com/56244029/123345341-0f0d6b80-d580-11eb-8341-d576b38e67bc.png)
+
+# Membuat Routing untuk artikel detail
+Buka Kembali file app/config/Routes.php, kemudian tambahkan routing untuk artikel
+detail.
+
+![10](https://user-images.githubusercontent.com/56244029/123345504-6ca1b800-d580-11eb-9d12-13e70c6b718e.png)
+
+![11](https://user-images.githubusercontent.com/56244029/123345601-a246a100-d580-11eb-8d4b-aeb0a8999e83.png)
+
+# Membuat Menu Admin
+Menu admin adalah untuk proses CRUD data artikel. Buat method baru pada
+Controller Artikel dengan nama admin_index().
+
+dan Selanjutnya buat view untuk tampilan admin dengan nama admin_index.php
+
+![12](https://user-images.githubusercontent.com/56244029/123346061-9f987b80-d581-11eb-8918-8042a5f8dfd9.png)
+
+![13](https://user-images.githubusercontent.com/56244029/123346047-9a3b3100-d581-11eb-9888-78bf317e7c9a.png)
+
+Tambahkan routing untuk menu admin seperti berikut:
+```
+$routes->group('admin', function($routes) {
+$routes->get('artikel', 'Artikel::admin_index');
+$routes->add('artikel/add', 'Artikel::add');
+$routes->add('artikel/edit/(:any)', 'Artikel::edit/$1');
+$routes->get('artikel/delete/(:any)', 'Artikel::delete/$1');
+});
+```
+
+Setelah itu buat template header dan footer baru untuk Halaman Admin. Buat file baru dengan nama admin_header.php pada direktori app/view/template
+
+![14](https://user-images.githubusercontent.com/56244029/123346473-9bb92900-d582-11eb-93b5-b5f80fb9102c.png)
+
+Akses menu admin dengan url http://localhost:8080/admin/artikel
+
+![15](https://user-images.githubusercontent.com/56244029/123346577-d622c600-d582-11eb-9eea-f2ab6c2fbd79.png)
+
+# Menambah Data Artikel
+Tambahkan fungsi/method baru pada Controller Artikel dengan nama add().
+```
+public function add()
+{
+// validasi data.
+$validation = \Config\Services::validation();
+$validation->setRules(['judul' => 'required']);
+$isDataValid = $validation->withRequest($this->request)->run();
+if ($isDataValid)
+{
+$artikel = new ArtikelModel();
+$artikel->insert([
+'judul' => $this->request->getPost('judul'),
+'isi' => $this->request->getPost('isi'),
+'slug' => url_title($this->request->getPost('judul')),
+]);
+return redirect('admin/artikel');
+}
+$title = "Tambah Artikel";
+return view('artikel/form_add', compact('title'));
+}
+```
+Kemudian buat view untuk form tambah dengan nama form_add.php
+```
+<?= $this->include('template/admin_header'); ?>
+<h2><?= $title; ?></h2>
+<form action="" method="post">
+<p>
+<input type="text" name="judul">
+</p>
+<p>
+<textarea name="isi" cols="50" rows="10"></textarea>
+</p>
+<p><input type="submit" value="Kirim" class="btn btn-large"></p>
+</form>
+<?= $this->include('template/admin_footer'); ?>
+```
+
+![16](https://user-images.githubusercontent.com/56244029/123346805-0b2f1880-d583-11eb-8b4b-23fcfb3adf54.png)
+
+# Mengubah Data
+Tambahkan fungsi/method baru pada Controller Artikel dengan nama edit()
+```
+public function edit($id)
+{
+$artikel = new ArtikelModel();
+// validasi data.
+$validation = \Config\Services::validation();
+$validation->setRules(['judul' => 'required']);
+$isDataValid = $validation->withRequest($this->request)->run();
+if ($isDataValid)
+{
+$artikel->update($id, [
+'judul' => $this->request->getPost('judul'),
+'isi' => $this->request->getPost('isi'),
+]);
+return redirect('admin/artikel');
+}
+// ambil data lama
+$data = $artikel->where('id', $id)->first();
+$title = "Edit Artikel";
+return view('artikel/form_edit', compact('title', 'data'));
+}
+```
+Kemudian buat view untuk form tambah dengan nama form_edit.php
+```
+<?= $this->include('template/admin_header'); ?>
+<h2><?= $title; ?></h2>
+<form action="" method="post">
+<p>
+<input type="text" name="judul" value="<?= $data['judul'];?>" >
+</p>
+<p>
+<textarea name="isi" cols="50" rows="10"><?=
+$data['isi'];?></textarea>
+</p>
+<p><input type="submit" value="Kirim" class="btn btn-large"></p>
+</form>
+<?= $this->include('template/admi!
+n_footer'); ?>
+```
+
+![17](https://user-images.githubusercontent.com/56244029/123348247-6fea7300-d583-11eb-8d17-9ec20b92f0c2.png)
